@@ -2,28 +2,18 @@
 
 import pygame
 import config
-from game import Game
+from game import Game, game_init
 from game_state import GameState
 
+def main():
+    game, clock = game_init()
+    while game.game_state == GameState.RUNNING:
 
-pygame.init()
-
-screen = pygame.display.set_mode((config.SCREEN_WIDTH, config.SCREEN_HEIGHT))
-
-pygame.display.set_caption('genome game')
-
-
-clock = pygame.time.Clock()
-
-game = Game(screen)
-
-game.set_up()
+        clock.tick(50)
+        game.update()
+        pygame.display.flip()
 
 
-
-while game.game_state == GameState.RUNNING:
-    clock.tick(50)
-    game.update()
-    pygame.display.flip()
-
+if __name__ == '__main__':
+    main()
 

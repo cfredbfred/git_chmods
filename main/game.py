@@ -4,8 +4,31 @@ import config
 from player import Player
 from player import NPC
 from game_state import GameState
+from assembly_module.contigo import main as tetris
+import os
+import subprocess
+from pygame import mixer
 
 
+
+def game_init():
+    pygame.init()
+    '''pygame.mixer.init()
+    pygame.mixer.music.load('/Users/student/PycharmProjects/pythonProject/man-is-he-mega-glbml-22045.mp3')
+    pygame.mixer.music.set_volume(0.5)
+    pygame.mixer.music.play(-1, 0, 5000)'''
+
+    screen = pygame.display.set_mode((config.SCREEN_WIDTH, config.SCREEN_HEIGHT))
+
+    pygame.display.set_caption('genome game')
+
+
+    clock = pygame.time.Clock()
+
+    game = Game(screen)
+
+    game.set_up()
+    return game, clock
 
 class Game:
 
@@ -14,6 +37,8 @@ class Game:
         self.objects = []
         self.game_state = GameState.NONE
         self.map = []
+        self.restart = False
+        self.story_counter = 0
 
 
 
@@ -38,6 +63,11 @@ class Game:
         self.computer = computer
         arch = NPC(17, 0, '/Users/student/PycharmProjects/pythonProject/git_chmods/main/images/arch.png')
         self.arch = arch
+        Bill_Pearson = NPC(12, 2, '/Users/student/PycharmProjects/pythonProject/git_chmods/main/images/billPearson.png')
+        self.Bill_Pearson = Bill_Pearson
+        Dan = NPC(16, 13, '/Users/student/PycharmProjects/pythonProject/git_chmods/main/images/Dan.png')
+        self.Dan = Dan
+
         self.objects.append(player)
         self.objects.append(Reed)
         self.objects.append(Simon)
@@ -48,6 +78,8 @@ class Game:
         self.objects.append(Snake)
         self.objects.append(computer)
         self.objects.append(arch)
+        self.objects.append(Bill_Pearson)
+        self.objects.append(Dan)
         print(self.objects)
         print('do set up')
         self.game_state = GameState.RUNNING
@@ -56,7 +88,8 @@ class Game:
         self.load_map('overworld')
 
     def update(self):
-
+        if self.restart:
+            return
         self.screen.fill(config.WHITE)
 
         self.handle_events()
@@ -77,7 +110,9 @@ class Game:
                           'Sofia': self.Sofia.position,
                           'Snake': self.Snake.position,
                           'computer': self.computer.position,
-                          'arch': self.arch.position
+                          'arch': self.arch.position,
+                          'Bill_Pearson': self.Bill_Pearson.position,
+                          'Dan': self.Dan.position
                           }
 
         for event in pygame.event.get():
@@ -131,6 +166,12 @@ class Game:
                         if next_room == 'sequencing_center':
                             self.arch.position = [300, 300]
                             self.arch.update_position(self.arch.position)
+                        if next_room == 'sequencing_center':
+                            self.Bill_Pearson.position = [301, 300]
+                            self.Bill_Pearson.update_position(self.Bill_Pearson.position)
+                        if next_room == 'sequencing_center':
+                            self.Dan.position = [308, 300]
+                            self.Dan.update_position(self.Dan.position)
 
 
                 # down
@@ -177,6 +218,12 @@ class Game:
                         if next_room == 'overworld':
                             self.arch.position = [17, 0]
                             self.arch.update_position(self.arch.position)
+                        if next_room == 'overworld':
+                            self.Bill_Pearson.position = [12, 2]
+                            self.Bill_Pearson.update_position(self.Bill_Pearson.position)
+                        if next_room == 'overworld':
+                            self.Dan.position = [16, 13]
+                            self.Dan.update_position(self.Dan.position)
 
 
 
@@ -193,6 +240,12 @@ class Game:
                 # programming interaction dynamic
                 elif event.key == pygame.K_k:
                     self.interact(self.player.position, positions_dict, self.screen)
+
+                elif event.key == pygame.K_j:
+                    print('K pressed')
+                    print(pygame.display.get_caption()[0])
+                    self.launch_game(pygame.display.get_caption()[0])
+
 
 
 
@@ -314,6 +367,88 @@ class Game:
                 print(arch_text)
                 pygame.display.set_caption(arch_text)
 
+        if player_position in possible_interaction_positions:
+            print('INTERACTION!')
+            if positions_dict['Bill_Pearson'][0] + 1 == player_position[0] or positions_dict['Bill_Pearson'][0] - 1 == player_position[0] or positions_dict['Bill_Pearson'][1] - 1 == player_position[1] or positions_dict['Bill_Pearson'][1] + 1 == player_position[1]:
+                print(Bill_Pearson_text)
+                pygame.display.set_caption(Bill_Pearson_text)
+
+        if player_position in possible_interaction_positions:
+            print('INTERACTION!')
+            if positions_dict['Dan'][0] + 1 == player_position[0] or positions_dict['Dan'][0] - 1 == player_position[0] or positions_dict['Dan'][1] - 1 == player_position[1] or positions_dict['Dan'][1] + 1 == player_position[1]:
+                print(Dan_text)
+                pygame.display.set_caption(Dan_text)
+
+    def launch_game(self, pygame_display_caption):
+        if pygame_display_caption == computer_text:
+            if self.story_counter == 2:
+                subprocess.Popen('python3 contigo.py', shell=True)
+                self.story_counter += 1
+        if pygame_display_caption == Snake_text:
+            if self.story_counter == 1:
+                subprocess.Popen('python3 snake_test.py', shell=True)
+                self.story_counter += 1
+        if pygame_display_caption == arch_text:
+            if self.story_counter == 0:
+                subprocess.Popen('python3 discovery_game.py', shell=True)
+                self.story_counter += 1
+        if pygame_display_caption == Simon_text:
+            if self.story_counter == 3:
+                subprocess.Popen('python3 blast_fighter_main.py', shell=True)
+                self.story_counter += 1
+        if pygame_display_caption == Bill_Pearson_text:
+            if self.story_counter == 4:
+                subprocess.Popen('open https://en.wikipedia.org/wiki/Banana_slug', shell=True)
+                self.story_counter += 1
+
+
+
+
+
+
+
+
+
+'''if pygame.K_k:
+                    new_screen = pygame.display.set_mode((1000, 750))
+                    print(os.getcwd())
+                    self.restart = True
+                    self_objects = self.objects
+                    self_gamestate = self.game_state
+                    self_screen = self.screen
+                    self_map = self.map
+                    tetris(new_screen)
+                    print('contigo completed')
+                    game, clock = game_init()
+                    #self.screen = game.screen
+                    pygame.init()
+                    self.reset_up(self_objects, self_gamestate, self_screen, self_map)
+                    self.screen = pygame.display.set_mode((config.SCREEN_WIDTH, config.SCREEN_HEIGHT))
+                    pygame.display.set_caption('genome game')
+                    self.set_up()'''
+
+
+
+
+#subprocess.Popen('python3 contigo.py', shell=True)
+
+
+
+
+
+
+
+
+'''def reset_up(self, self_objects, self_gamestate, self_screen, self_map):
+        self.objects = self_objects
+        self.game_state = self_gamestate
+        self.screen = self_screen
+        self.map = self_map
+        self.render_map(self_screen)'''
+
+
+
+
 
 
 
@@ -323,15 +458,16 @@ class Game:
 
 
 Reed_text = "Reed: PAULY, I'm standing here!"
-Simon_text = "Simon: Welcome to our Sequencing Center!"
+Simon_text = "Simon: With assembled contigs you must battle me to identify your organism! Press J"
 sign_text = "Simon and Sofia's Sequencing Center"
 Zach_text = "Zach: Dude, check out this mushroom. Its biosynthetic gene clusters probably coevolved..."
 mushroom_text = "mushroom: First, you should probably collect a DNA sample"
 Sofia_text = "Sofia: If you have a sequencing sample, you should run it in the Nanopore! Talk to the snake"
-Snake_text = "snake: Hey if you have a sequencing sample I'll run it, dude. Press K again and I'll do it!"
-computer_text = "computer: Hello, organic user. If you press K again, you can try to assemble your reads."
-arch_text = "arch: Yo go through me and you might get some hecking DNA. Press K to enter."
-
+Snake_text = "snake: Hey if you have a sequencing sample I'll run it, dude. Press J and I'll do it!"
+computer_text = "computer: Hello, organic user. If you press J, you can try to assemble your reads."
+arch_text = "arch: Yo go through me and you might get some hecking DNA. Press J to enter."
+Bill_Pearson_text = "Bill P: Press J to learn about your organism if you have it. DO NOT NUCLEOTIDE BLAST IT!"
+Dan_text = "Dan: CSHL is so fire."
 
 
 
